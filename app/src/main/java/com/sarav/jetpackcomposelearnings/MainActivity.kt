@@ -16,12 +16,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -39,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sarav.jetpackcomposelearnings.ui.theme.JetPackComposeLearningsTheme
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
@@ -71,14 +83,64 @@ class MainActivity : ComponentActivity() {
 
                     Row(modifier = Modifier){
                         val changedColor = remember { mutableStateOf(Color.Green) }
-                        ClickMeBox(modifier = Modifier.fillMaxWidth().weight(1f)){
+                        ClickMeBox(modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)){
                             changedColor.value = it
                         }
                         Spacer(modifier = Modifier.height(20.dp))
-                        ColorMeBox(modifier = Modifier.fillMaxWidth().weight(1f),changedColor.value)
+                        ColorMeBox(modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),changedColor.value)
                     }
 
+                    Spacer(modifier = Modifier.height(20.dp))
 
+
+                    // How to implement  textfield , buttin and the snackbar and scaffold.
+
+
+                    val snackbarHostState = remember {SnackbarHostState()}
+                    val scope = rememberCoroutineScope()
+                    var textFieldState  by remember{mutableStateOf("")}
+                    Scaffold(modifier = Modifier.fillMaxWidth()
+                        .padding(12.dp)
+                        .align(Alignment.CenterHorizontally),
+                        snackbarHost = {
+                            SnackbarHost(hostState = snackbarHostState)
+                        })
+                    {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(it)
+                            ){
+
+                            TextField(value = textFieldState ,
+                                label = {Text(text = "Enter the text")},
+                                onValueChange = {
+                                    textFieldState = it
+                                },
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Button(onClick = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                       "You Typed ::  $textFieldState","Ok",
+                                        withDismissAction = true,
+                                        duration = SnackbarDuration.Long
+                                    )
+                                }
+
+                            },
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    ) {
+                                Text(text = "Click Me")
+                            }
+
+                        }
+
+                    }
                 }
 
 
@@ -252,16 +314,16 @@ fun ClickMeBox(modifier: Modifier,updateColor: (Color)->Unit){
         .padding(20.dp)
         .background(Color.Red)
         .clickable {
-                   updateColor(
-                       Color(
-                           Random.nextFloat(),
-                           Random.nextFloat(),
-                           Random.nextFloat(),
-                           1f
+            updateColor(
+                Color(
+                    Random.nextFloat(),
+                    Random.nextFloat(),
+                    Random.nextFloat(),
+                    1f
 
-                       )
+                )
 
-                   )
+            )
         },
         contentAlignment = Alignment.Center){
         Text(text = "Click Me",
@@ -285,6 +347,8 @@ fun  ColorMeBox(modifier: Modifier,boxColor:Color){
         )
     }
 }
+
+
 
 
 
