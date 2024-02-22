@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,6 +53,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.Dimension
 import com.sarav.jetpackcomposelearnings.ui.theme.JetPackComposeLearningsTheme
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -65,8 +72,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Greeting("Android")
                 }*/
-
-                Column(modifier = Modifier){
+                val scrollState = rememberScrollState()
+                Column(modifier = Modifier.verticalScroll(scrollState)){
                     ImageCard(painter = painterResource(id = R.drawable.jetpack_compose_image),
                         contentDescription = "Jetpack Compose Image",
                         title = "Jetpack Compose")
@@ -91,21 +98,53 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(20.dp))
                         ColorMeBox(modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),changedColor.value)
+                            .weight(1f),changedColor.value
+                            )
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    val constrainSet = ConstraintSet {
+                        val greenBox = createRefFor("green_box")
+                        val redBox = createRefFor("red_box")
 
-                    // How to implement  textfield , buttin and the snackbar and scaffold.
+                        constrain(greenBox) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            width = Dimension.value(100.dp)
+                            height = Dimension.value(100.dp)
+                        }
+
+                        constrain(redBox) {
+                            top.linkTo(parent.top)
+                            start.linkTo(greenBox.end)
+                            end.linkTo(parent.end)
+                            width =  Dimension.value(100.dp)
+                            height = Dimension.value(100.dp)
+
+                        }
+                    }
+
+                    ConstraintLayout(constrainSet, modifier = Modifier.fillMaxSize()) {
+                        Box(modifier =  Modifier
+                            .background(Color.Green)
+                            .layoutId("green_box"))
+
+                        Box(modifier =  Modifier
+                            .background(Color.Red)
+                            .layoutId("red_box"))
+                    }
 
 
+                    Spacer(modifier = Modifier.height(20.dp))
+                    // How to implement  textfield , button and the snackbar and scaffold.
                     val snackbarHostState = remember {SnackbarHostState()}
                     val scope = rememberCoroutineScope()
                     var textFieldState  by remember{mutableStateOf("")}
-                    Scaffold(modifier = Modifier.fillMaxWidth()
+                    Scaffold(modifier = Modifier
+                        .fillMaxWidth()
                         .padding(12.dp)
-                        .align(Alignment.CenterHorizontally),
+                        ,
                         snackbarHost = {
                             SnackbarHost(hostState = snackbarHostState)
                         })
@@ -138,9 +177,29 @@ class MainActivity : ComponentActivity() {
                                 Text(text = "Click Me")
                             }
 
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            LazyRow(modifier = Modifier.fillMaxWidth()){
+                                // use itemIndexed for string and the index
+                                items(50){
+                                    Text(text = "Item #$it",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(8.dp))
+
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+
+
+
                         }
 
                     }
+
+
                 }
 
 
